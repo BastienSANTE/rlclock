@@ -12,14 +12,14 @@ const int clockWidth = (screenWidth / 2) * .9;
 const int clockInteriorWidth = (screenWidth / 2) * .8;
 
 int main(void) {
-  
+  SetConfigFlags(FLAG_VSYNC_HINT);
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
   
     InitWindow(screenWidth, screenHeight, "rlclock");
     
     Font clockFont = LoadFont("Font/7x13B.bdf");
     
-    SetTargetFPS(1);               // This is a clock, 1FPS should be enough
+    SetTargetFPS(0);               // This is a clock, 1FPS should be enough
     
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
