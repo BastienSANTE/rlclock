@@ -5,57 +5,59 @@
 
 void DrawClockHand(int x, int y, int l, float r);
 void DrawFrame();
+void GetClockTime();
 
 const int screenWidth = 160;
 const int screenHeight = 160;
 const int clockWidth = (screenWidth / 2) * .9;
 const int clockInteriorWidth = (screenWidth / 2) * .8;
 
+time_t timestamp;
+struct tm* now;
+
+float second = 0;
+
 int main(void) {
   SetConfigFlags(FLAG_VSYNC_HINT);
-  SetConfigFlags(FLAG_WINDOW_RESIZABLE);
   
-    InitWindow(screenWidth, screenHeight, "rlclock");
+  InitWindow(screenWidth, screenHeight, "rlclock");
+  
+  Font clockFont = LoadFont("Font/7x13B.bdf");
     
-    Font clockFont = LoadFont("Font/7x13B.bdf");
+  // Main game loop
+  while (!WindowShouldClose()) {
     
-    SetTargetFPS(0);               // This is a clock, 1FPS should be enough
-    
-    // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
-    {
+    if (second <= 0) {
       
-      time_t timestamp = time(NULL);
-      std::cout << timestamp << std::endl;
+      GetClockTime();
+      BeginDrawing();
+      ClearBackground(RAYWHITE);
 
-      struct tm* now = localtime(&timestamp);
-      
-        BeginDrawing();
+      DrawFrame();
 
-            ClearBackground(RAYWHITE);
+      // Hour Hand
+      DrawClockHand(screenWidth / 2, screenHeight / 2, 30, (now->tm_hour % 12) * 30);
 
-	    DrawFrame();
-	    
-	    //DrawCircleLines(screenWidth / 2, screenHeight / 2, clockWidth, BLACK);
+      // Minute Hand
+      DrawClockHand(screenWidth / 2, screenHeight / 2, 30, (now->tm_min * 6));
+      // Second Hand
+      DrawClockHand(screenWidth / 2, screenHeight / 2, 50, (now->tm_sec * 6));
 
-	    // Hour Hand
-	    DrawClockHand(screenWidth / 2, screenHeight / 2, 30, (now->tm_hour % 12) * 30);
+      Vector2 textPos = {screenWidth / 2, screenHeight * .9};
+      DrawTextEx(clockFont, TextFormat("%i", (now->tm_sec)), textPos, clockFont.baseSize, 2, BLACK);
 
-	    // Minute Hand
-	    DrawClockHand(screenWidth / 2, screenHeight / 2, 30, (now->tm_min * 6));
-	    // Second Hand
-	    DrawClockHand(screenWidth / 2, screenHeight / 2, 50, (now->tm_sec * 6));
+      EndDrawing();
+      second = 1;
 
-	    Vector2 textPos = {screenWidth / 2, screenHeight * .9};
-	    DrawTextEx(clockFont, TextFormat("%i", (now->tm_sec)), textPos, clockFont.baseSize, 2, BLACK);
-
-        EndDrawing();
-    
+    } else {
+      second -= GetFrameTime();
     }
-    
-    CloseWindow();        // Close window and OpenGL context
 
-    return 0;
+  }
+    
+  CloseWindow();
+    
+  return 0;
 }
 
 // Functions
@@ -87,5 +89,10 @@ void DrawFrame() {
     }
     
   }
+}
+
+void GetClockTime(){
+  timestamp = time(NULL);
+  now = localtime(&timestamp);
 }
 	      
