@@ -3,17 +3,19 @@
 #include <math.h>
 #include "raylib.h"
 
-void DrawClockHand(int x, int y, int l, float r);
+void DrawClockHand(int x, int y, int l, int w, Color c, float r);
 void DrawFrame();
 void GetClockTime();
 
 const int screenWidth = 160;
-const int screenHeight = 160;
+const int screenHeight = 200;
 const int clockWidth = (screenWidth / 2) * .9;
 const int clockInteriorWidth = (screenWidth / 2) * .8;
 
 time_t timestamp;
 struct tm* now;
+int day = 0;
+int birthdayTimestamp = 0; // Insert birthday here to get elapsed days since birth
 
 float second = 0;
 
@@ -36,15 +38,15 @@ int main(void) {
       DrawFrame();
 
       // Hour Hand
-      DrawClockHand(screenWidth / 2, screenHeight / 2, 30, (now->tm_hour % 12) * 30);
+      DrawClockHand(screenWidth / 2, screenHeight / 2, 35, 2, BLACK, (now->tm_hour % 12) * 30);
 
       // Minute Hand
-      DrawClockHand(screenWidth / 2, screenHeight / 2, 30, (now->tm_min * 6));
+      DrawClockHand(screenWidth / 2, screenHeight / 2, 50, 2, BLACK, (now->tm_min * 6));
       // Second Hand
-      DrawClockHand(screenWidth / 2, screenHeight / 2, 50, (now->tm_sec * 6));
+      DrawClockHand(screenWidth / 2, screenHeight / 2, 45, 1, RED, (now->tm_sec * 6));
 
       Vector2 textPos = {screenWidth / 2, screenHeight * .9};
-      DrawTextEx(clockFont, TextFormat("%i", (now->tm_sec)), textPos, clockFont.baseSize, 2, BLACK);
+      DrawTextEx(clockFont, TextFormat("Jour %i", ((int)(timestamp - birthdayTimestamp) / 86400)), textPos, 10, 2, BLACK);
 
       EndDrawing();
       second = 1;
@@ -62,14 +64,14 @@ int main(void) {
 
 // Functions
 
-void DrawClockHand(int x, int y, int l, float r) {
+void DrawClockHand(int x, int y, int l, int w, Color c, float r) {
 
   float rad = r * DEG2RAD;
 
-  DrawLine(x, y,
-	   x + sin(rad) * l,
-	   y - cos(rad) * l,
-	   BLACK);
+  Vector2 start = { x, y };
+  Vector2 end = { x + sin(rad) * l, y - cos(rad) * l };
+
+  DrawLineEx(start, end, w, c);
 }
 
 void DrawFrame() {
